@@ -1,8 +1,8 @@
-module comparator(a,b, equal, lower, greater) (
+module comparator(a,b, equal, lower, greater);
     input  [31:0] a,b;
     output equal, lower, greater;
     reg equal, lower, greater;
-    );
+
 
     always @(a or b)
      begin
