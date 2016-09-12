@@ -12,7 +12,7 @@ reg [31:0] output_mem;
       begin
       memoryFiles[endereco]<=indata; //memory write
       end
-    if(lerMem && ~clock)
+    if(lerMem && clock)
       begin
       output_mem <= memoryFiles[endereco];//memory read
       end
