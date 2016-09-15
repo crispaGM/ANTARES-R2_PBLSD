@@ -6,7 +6,7 @@ module CPU (clock);
   reg [31:0] PC;
   wire lerMem, escMem; //variáveis de controle do IF
 
-  
+
 
   //variaveis do ID
  wire PCSrc;
@@ -18,10 +18,10 @@ module CPU (clock);
  wire [8:0] IDcontrol,ConOut; 
 
   /**
-  * Instruction Fetch
+  * Busca de instruções
   */
   assign PCFonte = ((IDRegAout==IDRegBout)&IDcontrol[6])|((IDRegAout!=IDRegBout)&bne); // verifica a ocorrência de desvio condicional
-  assign IFFlush = PCSrc|jump; // se houver desvio ou salto
+  assign IFFlush = PCSrc|jump; // se houver desvio ou salto atualiza o valor do flush
   assign IF_pc_mais_4 = PC + 4; //variável do registrador if
 
   assign nextpc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
@@ -32,10 +32,25 @@ module CPU (clock);
       PC = nextpc; //update pc
     end
   end
-  memoria_compartilhada memoria(PC, 32'bx, lerMem, escMem, clock, IFinst);
+  memoria_compartilhada memoria(PC, 32'bx, lerMem, escMem, clock, IFinst); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
+  
+  IFID if_id (IFFlush,clock,IFIDWrite,IFpc_plus_4,IFinst,IDinst,IDpc_plus_4); // criação do registrador interestágio de busca de instrução
 
 
+/**
+  * Decodificação de instruções
+  */
 
+  assign IDRegRs[4:0]=IDinst[25:21]; // definindo os registradores usados na instrução
+  assign IDRegRt[4:0]=IDinst[20:16];
+  assign IDRegRd[4:0]=IDinst[15:11]; 
+
+  sign_ext extensor (IDinst[15:0],IDimm_value); // usando extensor na constante imediata
+  assign BranchAddr = (IDimm_value << 2) + IDpc_plus_4; // calculando o endereço do branch constante com deslocamento de 2 + PC +4
+  assign JumpTarget[31:28] = IFpc_plus_4[31:28]; // calculando endereço do salto
+  assign JumpTarget[27:2] = IDinst[25:0];
+  assign JumpTarget[1:0] = 0; 
+  assign PCMuxOut = jump ? JumpTarget : IFpc_plus_4;  // definindo valor do mux do pc
 
 
 
