@@ -1,4 +1,4 @@
-module IFID(flush,clock,IFIDWrite,PC_Plus4,Inst,InstReg,PC_Plus4Reg);
+module IF_ID(flush,clock,IFIDWrite,PC_Plus4,Inst,InstReg,PC_Plus4Reg);
 input [31:0] PC_Plus4,Inst;
 input clock,IFIDWrite,flush;
 output [31:0] InstReg, PC_Plus4Reg;
