@@ -1,12 +1,19 @@
 
-`include "memoria_compartilhada.v"
-`include "IF_ID.v"
-`include "sign_ext.v"
-`include "UC.v"
-`include "Banco_Registradores.v"
-`include "ID_EX.v"
-`include "MUX.v"
-`include "Forwarding.v"
+//`include "memoria_compartilhada.v"
+//`include "IF_ID.v"
+//`include "sign_ext.v"
+//`include "UC.v"
+//`include "Banco_Registradores.v"
+//`include "ID_EX.v"
+//`include "MUX.v"
+//`include "Forwarding.v"
+//`include "Hazard.v"
+//`include "MUX_2.v"
+//`include "Controle_ULA.v"
+//`include "ALU.v"
+//`include "EX_MEM.v"
+//`include "MEM_WB.v"
+
 module CPU (clock);
   input clock;
 
@@ -41,7 +48,7 @@ module CPU (clock);
  wire [31:0] MEMALUOut,MEMWriteData,MEMReadData;
  wire[31:0] address,dadoW,Mem_out;
   //memoria_compartilhada memoria(address, dadoW, lerMem, escMem, clock, out); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
-   
+
 
 
  //variaveis de escrita
@@ -56,7 +63,7 @@ module CPU (clock);
   assign IFFlush = PCSrc|jump; // se houver desvio ou salto atualiza o valor do flush
   assign IF_pc_mais_4 = PC + 4; //variável do registrador if
   assign nextpc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
-   
+
   always @ (posedge clock) begin
     if(PCWrite)
     begin
@@ -65,15 +72,15 @@ module CPU (clock);
   end
       memoria_compartilhada memoria(PC, 32'bx, lerMem, escMem, clock, IFinst); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
 
- 
-    
-    
+
+
+
    //assign  address = PC;
    // assign IFinst = Mem_out;
-  
- 
 
- 
+
+
+
   IF_ID if_id (IFFlush,clock,IFIDWrite,IF_pc_mais_4,IFinst,IDinst,ID_pc_mais_4); // criação do registrador interestágio de busca de instrução
 
 
@@ -107,7 +114,7 @@ module CPU (clock);
  assign b_value = EXEX[2] ? EXimm_value : EXRegBout;
 
  mux_ MUX1(ForwardA,EXRegAout,datatowrite,MEMALUOut,0,ALUSrcA);
- mux_2 MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
+ MUX_2 MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
  Forwarding FU(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
 ForwardB);
  // ALU control
@@ -123,12 +130,12 @@ ForwardB);
  /**
  * Acesso a memória
  */
-  //assign address = MEMALUOut;                        
+  //assign address = MEMALUOut;
   //assign MEMReadData =  Mem_out;
   //assign dadoW = MEMWriteData;
   //assign escMem = MEMM[0];
   //assign lerMem = MEMM[1];
-memoria_compartilhada DM(MEMALUOut,MEMWriteData,MEMM[0],MEMM[1],MEMReadData); 
+memoria_compartilhada DM(MEMALUOut,MEMWriteData,MEMM[0],MEMM[1],1'bx ,MEMReadData);
 
 
 
