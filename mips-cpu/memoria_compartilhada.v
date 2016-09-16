@@ -1,7 +1,6 @@
 module memoria_compartilhada(endereco, indata, lerMem, escMem, clock, output_mem);
-
 input [31:0] endereco,indata;
-input controle, lerMem, escMem, clock;
+input lerMem,escMem, clock;
 output [31:0] output_mem;
 reg [31:0] memoryFiles[511:0];// matriz dos dados na memória
 reg [31:0] output_mem;

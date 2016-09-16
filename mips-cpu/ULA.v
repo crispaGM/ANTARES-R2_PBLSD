@@ -45,8 +45,6 @@ module ALU(ALUCon,DataA,DataB,Result);
  Result[17] <= !(DataA[17]|DataB[17]);
  Result[18] <= !(DataA[18]|DataB[18]);
  Result[19] <= !(DataA[19]|DataB[19]); 
-1
-4
  Result[20] <= !(DataA[20]|DataB[20]);
  Result[21] <= !(DataA[21]|DataB[21]);
  Result[22] <= !(DataA[22]|DataB[22]);
