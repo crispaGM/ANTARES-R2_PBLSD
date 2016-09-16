@@ -1,4 +1,4 @@
-module Mux(A,X0,X1,X2,X3,Out);
+module MUX(A,X0,X1,X2,X3,Out);
 input [31:0] X3,X2,X1,X0;
 output [31:0] Out;
 reg [31:0] Out;
@@ -16,4 +16,4 @@ begin
  Out <= X3;
  endcase
 end
-endmodule 
+endmodule

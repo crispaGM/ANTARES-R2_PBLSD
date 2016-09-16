@@ -1,4 +1,4 @@
-module MEMWB(clock,WB,Memout,ALUOut,RegRD,WBreg,Memreg,ALUreg,RegRDreg);
+module MEM_WB(clock,WB,Memout,ALUOut,RegRD,WBreg,Memreg,ALUreg,RegRDreg);
 input clock;
 input [1:0] WB;
 input [4:0] RegRD;

@@ -6,7 +6,11 @@
 `include "ID_EX.v"
 `include "MUX.v"
 `include "Forwarding.v"
-
+`include "Hazard.v"
+`include "ALU.v"
+`include "EX_MEM.v"
+`include "MEM_WB.v"
+`include "Controle_ULA.v"
 
 module CPU (clock);
   input clock;
@@ -81,12 +85,11 @@ module CPU (clock);
   assign JumpTarget[1:0] = 0;
   assign PCMuxOut = jump ? JumpTarget : IF_pc_mais_4;  // definindo valor do mux do pc
 
-  HazardUnit HU(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard
-  Control uc (IDinst[31:26],ConOut,jump,bne,imm,andi,ori,addi); // unidade de controle
+  Hazard hazard(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard
+  UC uc (IDinst[31:26],ConOut,jump,bne,imm,andi,ori,addi); // unidade de controle
  Banco_Registradores registradores (clock,WBWB[0],datatowrite,WBRegRd,IDRegRs,IDRegRt,IDRegAout,IDRegBout);  // banco de registradores
 
- IDEX
-IDEXreg(clock,IDcontrol[8:7],IDcontrol[6:4],IDcontrol[3:0],IDRegAout,IDRegBout,IDimm_value,IDRegRs,IDRegRt,IDRegRd,EXWB,EXM,EXEX,EXRegAout,EXRegBout,EXimm_value,EXRegRs,EXRegRt,EXRegRd
+ ID_EX IDEXreg(clock,IDcontrol[8:7],IDcontrol[6:4],IDcontrol[3:0],IDRegAout,IDRegBout,IDimm_value,IDRegRs,IDRegRt,IDRegRd,EXWB,EXM,EXEX,EXRegAout,EXRegBout,EXimm_value,EXRegRs,EXRegRt,EXRegRd
 );  // passando para o estágio de execução
 
 
@@ -98,7 +101,7 @@ IDEXreg(clock,IDcontrol[8:7],IDcontrol[6:4],IDcontrol[3:0],IDRegAout,IDRegBout,I
 
  MUX MUX1(ForwardA,EXRegAout,datatowrite,MEMALUOut,0,ALUSrcA);
  MUX MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
- ForwardUnit FU(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
+ Forwarding fowarding(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
 ForwardB);
  // ALU control
   assign aluop[0] =
@@ -106,17 +109,16 @@ ForwardB);
   assign aluop[1] =
  (~IDinst[31]&~IDinst[30]&~IDinst[29]&~IDinst[28]&~IDinst[27]&~IDinst[26])|(imm);
 
- ALUControl ALUcontrol(andi,ori,addi,EXEX[1:0],EXimm_value[5:0],ALUCon);
+ Controle_ULA ALUcontrol(andi,ori,addi,EXEX[1:0],EXimm_value[5:0],ALUCon);
  ALU theALU(ALUCon,ALUSrcA,ALUSrcB,EXALUOut);
 
- EXMEM EXMEMreg(clock,EXWB,EXM,EXALUOut,regtopass,EXRegBout,MEMM,MEMWB,MEMALUOut,MEMRegRd,MEMWriteData); // estágio de acesso a memória
+ EX_MEM EXMEMreg(clock,EXWB,EXM,EXALUOut,regtopass,EXRegBout,MEMM,MEMWB,MEMALUOut,MEMRegRd,MEMWriteData); // estágio de acesso a memória
  /**
  * Acesso a memória
  */
 memoria_compartilhada DM(MEMM[0],MEMM[1],MEMALUOut,MEMWriteData,MEMReadData);
 
-MEMWB
-MEMWBreg(clock,MEMWB,MEMReadData,MEMALUOut,MEMRegRd,WBWB,WBReadData,WBALUOut,WBRegRd); // passando para o estágio final de escrita no registrador
+MEM_WB MEMWBreg(clock,MEMWB,MEMReadData,MEMALUOut,MEMRegRd,WBWB,WBReadData,WBALUOut,WBRegRd); // passando para o estágio final de escrita no registrador
  /**
  * Escrita no registrador
  */

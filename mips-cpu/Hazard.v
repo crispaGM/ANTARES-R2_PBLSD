@@ -1,4 +1,4 @@
-module HazardUnit(IDRegRs,IDRegRt,EXRegRt,EXMemRead,PCWrite,IFIDWrite,HazMuxCon);
+module Hazard(IDRegRs,IDRegRt,EXRegRt,EXMemRead,PCWrite,IFIDWrite,HazMuxCon);
   input [4:0] IDRegRs,IDRegRt,EXRegRt;
   input EXMemRead;
   output PCWrite, IFIDWrite, HazMuxCon;
