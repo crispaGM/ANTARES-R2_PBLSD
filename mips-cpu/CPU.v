@@ -21,6 +21,27 @@ module CPU (clock);
  wire PCWrite,IFIDWrite,HazMuxCon,jump,bne,imm,andi,ori,addi; // variaveis de controle para auxiliar no ID
  wire [8:0] IDcontrol,ConOut;
 
+
+  //variaveis de execução
+ wire [1:0] EXWB,ForwardA,ForwardB,aluop;
+ wire [2:0] EXM;
+ wire [3:0] EXEX,ALUCon;
+ wire [4:0] EXRegRs,EXRegRt,EXRegRd,regtopass;
+ wire [31:0] EXRegAout,EXRegBout,EXimm_value, b_value;
+ wire [31:0] EXALUOut,ALUSrcA,ALUSrcB; 
+
+
+ //variveis de memoria
+ wire [1:0] MEMWB;
+ wire [2:0] MEMM;
+ wire [4:0] MEMRegRd;
+ wire [31:0] MEMALUOut,MEMWriteData,MEMReadData;
+
+ //variaveis de escrita
+ wire [1:0] WBWB;
+ wire [4:0] WBRegRd;
+ wire [31:0] datatowrite,WBReadData,WBALUOut; 
+
   /**
   * Busca de instruções
   */
@@ -55,7 +76,46 @@ module CPU (clock);
   assign JumpTarget[27:2] = IDinst[25:0];
   assign JumpTarget[1:0] = 0;
   assign PCMuxOut = jump ? JumpTarget : IF_pc_mais_4;  // definindo valor do mux do pc
+   
+  HazardUnit HU(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard 
+  Control uc (IDinst[31:26],ConOut,jump,bne,imm,andi,ori,addi); // unidade de controle
+ Banco_Registradores registradores (clock,WBWB[0],datatowrite,WBRegRd,IDRegRs,IDRegRt,IDRegAout,IDRegBout);  // banco de registradores
 
+ IDEX
+IDEXreg(clock,IDcontrol[8:7],IDcontrol[6:4],IDcontrol[3:0],IDRegAout,IDRegBout,IDimm_value,IDRegRs,IDRegRt,IDRegRd,EXWB,EXM,EXEX,EXRegAout,EXRegBout,EXimm_value,EXRegRs,EXRegRt,EXRegRd
+);  // passando para o estágio de execução
 
+ 
+ /**
+ * Execução
+ */
+ assign regtopass = EXEX[3] ? EXRegRd : EXRegRt;
+ assign b_value = EXEX[2] ? EXimm_value : EXRegBout;
 
-endmodule //
+ MUX MUX1(ForwardA,EXRegAout,datatowrite,MEMALUOut,0,ALUSrcA);
+ MUX MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
+ ForwardUnit FU(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
+ForwardB);
+ // ALU control
+  assign aluop[0] =
+ (~IDinst[31]&~IDinst[30]&~IDinst[29]&IDinst[28]&~IDinst[27]&~IDinst[26])|(imm);
+  assign aluop[1] =
+ (~IDinst[31]&~IDinst[30]&~IDinst[29]&~IDinst[28]&~IDinst[27]&~IDinst[26])|(imm);
+
+ ALUControl ALUcontrol(andi,ori,addi,EXEX[1:0],EXimm_value[5:0],ALUCon);
+ ALU theALU(ALUCon,ALUSrcA,ALUSrcB,EXALUOut);
+
+ EXMEM EXMEMreg(clock,EXWB,EXM,EXALUOut,regtopass,EXRegBout,MEMM,MEMWB,MEMALUOut,MEMRegRd,MEMWriteData); // estágio de acesso a memória
+ /**
+ * Acesso a memória
+ */
+memoria_compartilhada DM(MEMM[0],MEMM[1],MEMALUOut,MEMWriteData,MEMReadData); 
+
+MEMWB
+MEMWBreg(clock,MEMWB,MEMReadData,MEMALUOut,MEMRegRd,WBWB,WBReadData,WBALUOut,WBRegRd); // passando para o estágio final de escrita no registrador
+ /**
+ * Escrita no registrador
+ */
+ assign datatowrite = WBWB[1] ? WBReadData : WBALUOut; 
+
+endmodule 
