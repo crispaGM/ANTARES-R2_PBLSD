@@ -1,4 +1,4 @@
-module ForwardUnit(MEMRegRd,WBRegRd,EXRegRs,EXRegRt, MEM_RegWrite, WB_RegWrite, ForwardA, ForwardB);
+module Forwarding(MEMRegRd,WBRegRd,EXRegRs,EXRegRt, MEM_RegWrite, WB_RegWrite, ForwardA, ForwardB);
   input[4:0] MEMRegRd,WBRegRd,EXRegRs,EXRegRt;
   input MEM_RegWrite, WB_RegWrite;
   output[1:0] ForwardA, ForwardB;

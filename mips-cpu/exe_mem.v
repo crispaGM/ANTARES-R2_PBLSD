@@ -8,14 +8,11 @@ output [1:0] WBreg;
 output [2:0] Mreg;
 output [31:0] ALUreg,WriteDataOut;
 output [4:0] RegRDreg;
-reg
-reg
-reg
-reg
-[1:0] WBreg;
-[2:0] Mreg;
-[31:0] ALUreg,WriteDataOut;
-[4:0] RegRDreg;
+reg [1:0] WBreg;
+reg [2:0] Mreg;
+reg [31:0] ALUreg,WriteDataOut;
+reg [4:0] RegRDreg;
+
 initial begin
 WBreg=0;
 Mreg=0;

@@ -1,6 +1,12 @@
 `include "memoria_compartilhada.v"
 `include "IF_ID.v"
 `include "sign_ext.v"
+`include "UC.v"
+`include "Banco_Registradores.v"
+`include "ID_EX.v"
+`include "MUX.v"
+`include "Forwarding.v"
+
 
 module CPU (clock);
   input clock;
@@ -9,8 +15,6 @@ module CPU (clock);
   wire [31:0] proximo_PC, IF_pc_mais_4, IFinst;
   reg [31:0] PC;
   wire lerMem, escMem; //variáveis de controle do IF
-
-
 
   //variaveis do ID
  wire PCSrc;
@@ -28,7 +32,7 @@ module CPU (clock);
  wire [3:0] EXEX,ALUCon;
  wire [4:0] EXRegRs,EXRegRt,EXRegRd,regtopass;
  wire [31:0] EXRegAout,EXRegBout,EXimm_value, b_value;
- wire [31:0] EXALUOut,ALUSrcA,ALUSrcB; 
+ wire [31:0] EXALUOut,ALUSrcA,ALUSrcB;
 
 
  //variveis de memoria
@@ -40,7 +44,7 @@ module CPU (clock);
  //variaveis de escrita
  wire [1:0] WBWB;
  wire [4:0] WBRegRd;
- wire [31:0] datatowrite,WBReadData,WBALUOut; 
+ wire [31:0] datatowrite,WBReadData,WBALUOut;
 
   /**
   * Busca de instruções
@@ -76,8 +80,8 @@ module CPU (clock);
   assign JumpTarget[27:2] = IDinst[25:0];
   assign JumpTarget[1:0] = 0;
   assign PCMuxOut = jump ? JumpTarget : IF_pc_mais_4;  // definindo valor do mux do pc
-   
-  HazardUnit HU(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard 
+
+  HazardUnit HU(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard
   Control uc (IDinst[31:26],ConOut,jump,bne,imm,andi,ori,addi); // unidade de controle
  Banco_Registradores registradores (clock,WBWB[0],datatowrite,WBRegRd,IDRegRs,IDRegRt,IDRegAout,IDRegBout);  // banco de registradores
 
@@ -85,7 +89,7 @@ module CPU (clock);
 IDEXreg(clock,IDcontrol[8:7],IDcontrol[6:4],IDcontrol[3:0],IDRegAout,IDRegBout,IDimm_value,IDRegRs,IDRegRt,IDRegRd,EXWB,EXM,EXEX,EXRegAout,EXRegBout,EXimm_value,EXRegRs,EXRegRt,EXRegRd
 );  // passando para o estágio de execução
 
- 
+
  /**
  * Execução
  */
@@ -109,13 +113,13 @@ ForwardB);
  /**
  * Acesso a memória
  */
-memoria_compartilhada DM(MEMM[0],MEMM[1],MEMALUOut,MEMWriteData,MEMReadData); 
+memoria_compartilhada DM(MEMM[0],MEMM[1],MEMALUOut,MEMWriteData,MEMReadData);
 
 MEMWB
 MEMWBreg(clock,MEMWB,MEMReadData,MEMALUOut,MEMRegRd,WBWB,WBReadData,WBALUOut,WBRegRd); // passando para o estágio final de escrita no registrador
  /**
  * Escrita no registrador
  */
- assign datatowrite = WBWB[1] ? WBReadData : WBALUOut; 
+ assign datatowrite = WBWB[1] ? WBReadData : WBALUOut;
 
-endmodule 
+endmodule

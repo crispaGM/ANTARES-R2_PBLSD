@@ -1,4 +1,4 @@
-module IDEX(clock,WB,M,EX,DataA,DataB,imm_value,RegRs,RegRt,RegRd,WBreg,Mreg,EXreg,DataAreg,
+module ID_EX(clock,WB,M,EX,DataA,DataB,imm_value,RegRs,RegRt,RegRd,WBreg,Mreg,EXreg,DataAreg,
 DataBreg,imm_valuereg,RegRsreg,RegRtreg,RegRdreg);
 input clock;
 input [1:0] WB;
@@ -11,19 +11,13 @@ output [2:0] Mreg;
 output [3:0] EXreg;
 output [4:0] RegRsreg,RegRtreg,RegRdreg;
 output [31:0] DataAreg,DataBreg,imm_valuereg;
-reg
-reg
-reg
-reg
-reg
-[1:0] WBreg;
-[2:0] Mreg;
-[3:0] EXreg;
-[31:0] DataAreg,DataBreg,imm_valuereg;
-[4:0] RegRsreg,RegRtreg,RegRdreg;
+reg [1:0] WBreg;
+reg [2:0] Mreg;
+reg [3:0] EXreg;
+reg [31:0] DataAreg,DataBreg,imm_valuereg;
+reg [4:0] RegRsreg,RegRtreg,RegRdreg;
 initial begin
 WBreg = 0;
-1
 0Mreg = 0;
 EXreg = 0;
 DataAreg = 0;
