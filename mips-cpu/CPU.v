@@ -129,7 +129,7 @@ ForwardB);
   assign aluop[1] =
  (~IDinst[31]&~IDinst[30]&~IDinst[29]&~IDinst[28]&~IDinst[27]&~IDinst[26])|(imm);
 
- Controle_ULA ALUcontrol(andi,ori,addi,EXEX[1:0],EXimm_value[5:0],ALUCon);
+ Controle_ULA ALUcontrol(EXEX[1:0],EXimm_value[5:0],ALUCon);
  ALU ULA(ALUCon,ALUSrcA,ALUSrcB,EXALUOut);
 
 

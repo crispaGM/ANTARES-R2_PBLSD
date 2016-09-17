@@ -5,7 +5,7 @@ module Controle_ULA(ALUOp,funct,ALUCon);
 
  reg [3:0] ALUCon;
 
- always@(ALUOp or funct or andi or ori or addi)
+ always@(ALUOp or funct)
  begin
 	 case(ALUOp)
 		 
@@ -22,7 +22,7 @@ module Controle_ULA(ALUOp,funct,ALUCon);
 			 if(funct==6'b101010)
 			 	ALUCon = 3'b100;//slt
 			 if(funct==6'b001000)
-			 	ALUCon==3'b000;//jr
+			 	ALUCon=3'b000;//jr
 		 end
 		 //tipo I
 		 6'b001000://addi
@@ -39,9 +39,9 @@ module Controle_ULA(ALUOp,funct,ALUCon);
 		 	ALUCon = 3'b000;
 		 
 		 //load/store
-		 6'b100011 //lw
+		 6'b100011: //lw
 		 	ALUCon = 3'b000;
-		 6'b101011 //sw
+		 6'b101011: //sw
 		 	ALUCon = 3'b000;
 	 endcase
 	 end
