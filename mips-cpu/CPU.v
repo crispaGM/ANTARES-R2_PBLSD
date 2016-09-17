@@ -120,7 +120,7 @@ module CPU (clock);
  assign b_value = EXEX[2] ? EXimm_value : EXRegBout;
 
  mux_ MUX1(ForwardA,EXRegAout,datatowrite,MEMALUOut,0,ALUSrcA);
- mux_2 MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
+ MUX_2 MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
  Forwarding FU(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
 ForwardB);
  // ALU control
