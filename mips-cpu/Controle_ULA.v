@@ -37,11 +37,9 @@ module Controle_ULA(ALUOp,funct,ALUCon);
 		 	ALUCon = 3'b000;
 		 6'b000011: //jal
 		 	ALUCon = 3'b000;
-		 6'b100011 //lw
-		 	ALUCon = 3'b000;
 		 
 		 //load/store
-		 6'b101011 //sw
+		 6'b100011 //lw
 		 	ALUCon = 3'b000;
 		 6'b101011 //sw
 		 	ALUCon = 3'b000;
