@@ -20,7 +20,8 @@ module CPU (clock);
   //variaveis de execução
  wire [1:0] EXWB,ForwardA,ForwardB,aluop;
  wire [2:0] EXM;
- wire [3:0] EXEX,ALUCon;
+ wire [3:0] EXEX;
+ wire [2:0] ALUCon;
  wire [4:0] EXRegRs,EXRegRt,EXRegRd,regtopass;
  wire [31:0] EXRegAout,EXRegBout,EXimm_value, b_value;
  wire [31:0] EXALUOut,ALUSrcA,ALUSrcB;
@@ -36,8 +37,8 @@ module CPU (clock);
  reg[31:0] address,dadoW;
  wire[31:0]Mem_out;
   memoria_compartilhada memoria(address, dadoW, lerMem, escMem, clock, out); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
+  
    
-
 
  //variaveis de escrita
  wire [1:0] WBWB;

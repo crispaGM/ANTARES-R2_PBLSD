@@ -1,5 +1,5 @@
 module ALU(ALUCon,DataA,DataB,Result);
- input [3:0] ALUCon;
+ input [2:0] ALUCon;
  input [31:0] DataA,DataB;
  output [31:0] Result;
 
