@@ -3,7 +3,7 @@ module Controle_ULA(ALUOp,funct,ALUCon);
  input [5:0] funct;
  output [2:0] ALUCon;
 
- reg [3:0] ALUCon;
+ reg [2:0] ALUCon;
 
  always@(ALUOp or funct)
  begin

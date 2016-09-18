@@ -1,7 +1,6 @@
 module CPU_test;
 
  reg Clock;
- integer i;
  initial begin
  Clock = 1;
  end
@@ -10,20 +9,15 @@ module CPU_test;
  Clock = ~Clock;
  #25;
  end
-
+reg binary [31:0]
  initial begin
 
  // Instr Memory intialization
-  $readmemb("tb.input",pipelined.memoria.memoryFiles); 
+  $readmemb("tb.input", binary); //só tem o binário de um add
 
- 
-
- pipelined.registradores.memoryFiles[0] = 0;
- // Register File initialization
- for (i = 0; i < 32; i = i + 1)
- pipelined.registradores.memoryFiles[i] = 32'd0;
+ cpu.memoria.MemoryFiles[0] = binary [31:0]
  end
  //Instantiate cpu
-CPU pipelined(Clock);
+CPU cpu(Clock);
 
 endmodule
