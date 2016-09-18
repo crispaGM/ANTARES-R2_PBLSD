@@ -9,13 +9,13 @@ module CPU_test;
  Clock = ~Clock;
  #25;
  end
-reg binary [31:0]
+reg [31:0]binary [0:1];
  initial begin
 
  // Instr Memory intialization
   $readmemb("tb.input", binary); //só tem o binário de um add
 
- cpu.memoria.MemoryFiles[0] = binary [31:0]
+ cpu.memoria.memoryFiles[0] = binary[1][31:0];
  end
  //Instantiate cpu
 CPU cpu(Clock);

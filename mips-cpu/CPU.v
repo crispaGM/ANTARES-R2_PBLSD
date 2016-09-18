@@ -3,7 +3,7 @@ module CPU (clock);
   input clock;
 
   //variáveis do IF
-  wire [31:0] proximo_PC, IF_pc_mais_4;
+  wire [31:0] proximo_pc, IF_pc_mais_4;
   reg [31:0] PC , IFinst;
   reg[1:0] lerMem, escMem; //variáveis de controle do IF
 
@@ -50,12 +50,12 @@ module CPU (clock);
   assign PCFonte = ((IDRegAout==IDRegBout)&IDcontrol[6])|((IDRegAout!=IDRegBout)&bne); // verifica a ocorrência de desvio condicional
   assign IFFlush = PCSrc|jump; // se houver desvio ou salto atualiza o valor do flush
   assign IF_pc_mais_4 = PC + 4; //variável do registrador if
-  assign nextpc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
+  assign proximo_pc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
    
   always @ (posedge clock) begin
     if(PCWrite)
     begin
-      PC = proximo_PC; //update pc
+      PC = proximo_pc; //update pc
     end
   end
      // memoria_compartilhada memoria(PC, 32'bx, lerMem, escMem, clock, IFinst); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
