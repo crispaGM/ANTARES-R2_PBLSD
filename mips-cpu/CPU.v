@@ -1,21 +1,20 @@
 
 module CPU (clock);
   input clock;
-
   //variáveis do IF
   wire [31:0] proximo_pc, IF_pc_mais_4;
   reg [31:0] PC , IFinst;
   reg[1:0] lerMem, escMem; //variáveis de controle do IF
   
   //variaveis do ID
- wire PCSrc;
+ wire PCFonte;
  wire [4:0] IDRegRs,IDRegRt,IDRegRd; // registradores que vão ser usados na instrução
  wire [31:0] ID_pc_mais_4,IDinst;
  wire [31:0] IDRegAout, IDRegBout; // valor lido
  wire [31:0] IDimm_value,BranchAddr,PCMuxOut,JumpTarget; // variaveis, imediata, endereço do desvio, saida do mux para o pc. endereço do salto
  wire PCWrite,IFIDWrite,HazMuxCon,jump,bne,imm,andi,ori,addi; // variaveis de controle para auxiliar no ID
  wire [8:0] IDcontrol,ConOut;
-
+ 
 
   //variaveis de execução
  wire [1:0] EXWB,ForwardA,ForwardB,aluop;
@@ -36,7 +35,6 @@ module CPU (clock);
 
  reg[31:0] address,dadoW;
  wire[31:0]Mem_out;
-  memoria_compartilhada memoria(address, dadoW, lerMem, escMem, clock, Mem_out); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
   
    
 
@@ -46,8 +44,7 @@ module CPU (clock);
  wire[31:0] datatowrite,WBReadData,WBALUOut;
 
  initial begin
- PC = 0;
-
+  PC = 32'b0;
  end 
  
   
@@ -57,16 +54,20 @@ module CPU (clock);
   assign PCFonte = ((IDRegAout==IDRegBout)&IDcontrol[6])|((IDRegAout!=IDRegBout)&bne); // verifica a ocorrência de desvio condicional
   assign IFFlush = PCFonte|jump; // se houver desvio ou salto atualiza o valor do flush
   assign IF_pc_mais_4 = PC + 4; //variável do registrador if
-  assign proximo_pc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
-   
-  always @ (posedge clock) begin
+ assign proximo_pc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
+  
+  always @ (posedge clock ) begin
     if(PCWrite)
     begin
-      PC = proximo_pc; //update pc
-		$display("PC: %d",PC); 
+   
+	  PC <= proximo_pc; //update pc
+		
     end
+	 
+	 
   end
      // memoria_compartilhada memoria(PC, 32'bx, lerMem, escMem, clock, IFinst); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
+  memoria_compartilhada memoria(address, dadoW, lerMem, escMem, clock, Mem_out); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
 
      always @ (posedge clock) begin
     if(MEMM[0]| MEMM[1])
@@ -146,12 +147,7 @@ ForwardB);
   assign MEMWriteData = REG_MEMWriteData;
   assign MEMReadData = REG_MEMReadData;
  EX_MEM EXMEMreg(clock,EXWB,EXM,EXALUOut,regtopass,EXRegBout,MEMM,MEMWB,MEMALUOut,MEMRegRd,MEMWriteData); // estágio de acesso a memória
- /**
- * Acesso a memória
- */
  
-//memoria_compartilhada DM(MEMALUOut,MEMWriteData,MEMM[0],MEMM[1],clock,MEMReadData); 
-
 
 
 
