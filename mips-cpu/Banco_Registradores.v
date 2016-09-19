@@ -6,10 +6,13 @@ output [31:0] OutA,OutB;
 
 reg [31:0] OutA, OutB;
 reg [31:0] regfile[31:0];
-
+integer i;
 initial begin
 OutA = 0;
 OutB = 0;
+for (i = 0; i < 32; i = i + 1)
+ regfile[i] = 32'd0; 
+ 
 end
 
 always@(clock,Dado_Escrito,RegW,EscReg)
