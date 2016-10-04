@@ -1,0 +1,25 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "UART_Tx",
+					"strict" : false
+				},
+				{
+					"name" : "CLOCK_50",
+					"strict" : false
+				},
+				{
+					"name" : "start_bit",
+					"strict" : false
+				},
+				{
+					"name" : "UART_Rx",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

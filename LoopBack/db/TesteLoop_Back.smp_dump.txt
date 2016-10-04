@@ -1,0 +1,13 @@
+
+State Machine - |topLevel_certo|serial_rx:serial_rx_inst|state_reg
+Name state_reg.00 state_reg.10 state_reg.01 
+state_reg.00 0 0 0 
+state_reg.01 1 0 1 
+state_reg.10 1 1 0 
+
+State Machine - |topLevel_certo|serial_tx:serial_tx_inst|state_reg
+Name state_reg.11 state_reg.10 state_reg.01 state_reg.00 
+state_reg.00 0 0 0 0 
+state_reg.01 0 0 1 1 
+state_reg.10 0 1 0 1 
+state_reg.11 1 0 0 1 
