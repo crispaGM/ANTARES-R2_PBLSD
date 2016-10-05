@@ -1,18 +1,16 @@
-module Banco_Registradores(clock,EscReg,Dado_Escrito,RegW,ReadA,ReadB,OutA,OutB);
+module Banco_Registradores(clock, reset, EscReg,Dado_Escrito,RegW,ReadA,ReadB,OutA,OutB);
 input [4:0] RegW, ReadA, ReadB;
-input EscReg,clock;
+input EscReg,clock, reset;
 input [31:0] Dado_Escrito;
 output [31:0] OutA,OutB;
 
 reg [31:0] OutA, OutB;
 reg [31:0] regfile[31:0];
-integer i;
-initial begin
-OutA = 0;
-OutB = 0;
-for (i = 0; i < 32; i = i + 1)
- regfile[i] = 32'd0; 
- 
+
+always @ ( posedge reset ) begin
+    regfile <=0;
+    OutA <=0;
+    OutB <=0;
 end
 
 always@(clock,Dado_Escrito,RegW,EscReg)
