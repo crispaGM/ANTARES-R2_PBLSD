@@ -2,7 +2,7 @@ module 32_to_4x8(clock,reset, indata, outdata);
 
 input clock, reset;
 input [31:0] indata;
-output [0:7] outdata;
+output [7:0] outdata;
 
 reg [7:0] outdata;
 reg [1:0]state;
