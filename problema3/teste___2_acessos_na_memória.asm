@@ -24,7 +24,7 @@ sw $a0, $t3
 J polling2
 
 polling2:
-lw $a0,65536
+lw $a0,65535
 bne $a0, 0, exit
 J polling
 
