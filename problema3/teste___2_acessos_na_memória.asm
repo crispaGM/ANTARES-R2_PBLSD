@@ -4,7 +4,8 @@ addi $t1, $t1, 1
 
 gravacao:
 move $a0,$t1
-sw $a0,900000($s0)
+li $t3, 65535
+sw $a0, $t3
 J polling
 
 polling:
@@ -18,7 +19,8 @@ j gravacao2
 
 gravacao2:
 move $a0,$t1
-sw $a0,900000($s0)
+li $t3, 65535
+sw $a0, $t3
 J polling2
 
 polling2:
