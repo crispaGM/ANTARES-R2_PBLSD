@@ -1,11 +1,14 @@
 
-module CPU (clock, reset);
+module CPU (clock, reset,mem_out,address_out, dadoW_out, lerMem_out, escMem_out);
   input clock, reset;
+  input [31:0]mem_out;
+  output [31:0]address_out, dadoW_out;
+  output lerMem_out, escMem_out;
   //variáveis do IF
   wire [31:0] proximo_pc, IF_pc_mais_4;
   reg [31:0] PC , IFinst;
   reg[1:0] lerMem, escMem; //variáveis de controle do IF
-
+  reg reset_n;
   //variaveis do ID
  wire PCFonte;
  wire [4:0] IDRegRs,IDRegRt,IDRegRd; // registradores que vão ser usados na instrução
@@ -35,7 +38,7 @@ module CPU (clock, reset);
 
  reg[31:0] address,dadoW;
  wire[31:0]Mem_out;
-
+assign Mem_out = mem_out;
 
 
  //variaveis de escrita
@@ -43,16 +46,9 @@ module CPU (clock, reset);
  wire [4:0] WBRegRd;
  wire[31:0] datatowrite,WBReadData,WBALUOut;
 
- initial begin
-  PC = 32'b0;
- end
+ 
 
-  //reset no PC
-  always @ ( posedge reset ) begin
-    PC <= 0;
-    proximo_pc <= 0;
-    IF_pc_mais_4 <=0;
-  end
+ 
 
 
   /**
@@ -62,30 +58,45 @@ module CPU (clock, reset);
   assign IFFlush = PCFonte|jump; // se houver desvio ou salto atualiza o valor do flush
   assign IF_pc_mais_4 = PC + 4; //variável do registrador if
  assign proximo_pc = PCFonte ? BranchAddr : PCMuxOut; // se houve desvio pc recebe endereço do branch, caso não recebe saida do mux
-
-  always @ (posedge clock ) begin
-    if(PCWrite)
+  assign esscMem_out = escMem;
+	 assign lerMem_out = lerMem;
+	 assign dadoW_out = dadoW;
+	 assign address_out = address;
+  
+  always @ (posedge clock , negedge reset) begin
+    if(reset == 0)
+	 begin
+	  PC <= 32'b0;
+	 // proximo_pc <= 32'b0;
+	  
+		 $display("PC : %b", PC);
+	 end
+	else  if(PCWrite == 1)
     begin
-
+     
 	  PC <= proximo_pc; //update pc
-
+      
+	
     end
-
+    
 
   end
      // memoria_compartilhada memoria(PC, 32'bx, lerMem, escMem, clock, IFinst); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
-  memoria_compartilhada memoria(address, dadoW, lerMem, escMem, clock, Mem_out); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
+// memoria_compartilhada memoria(address, dadoW, lerMem, escMem, clock, Mem_out); // acessa a memória compartilhada e coloca em Ifinst o endereço da instrução buscada
 
      always @ (posedge clock) begin
-    if(MEMM[0]| MEMM[1])
+     
+
+	 if(MEMM[0]| MEMM[1])
 
     begin
     address = MEMALUOut;
     REG_MEMReadData = Mem_out;
-   dadoW = MEMWriteData;
-    escMem = MEMM[0];
+    dadoW = MEMWriteData;
+    
+	 escMem = MEMM[0];
     lerMem = MEMM[1];
-
+     
     end
 
     else
@@ -102,9 +113,10 @@ module CPU (clock, reset);
 
 
 
+   
+	//IFIDWrite = 1
 
-
-  IF_ID if_id (IFFlush,clock,IFIDWrite,IF_pc_mais_4,IFinst,IDinst,ID_pc_mais_4); // criação do registrador interestágio de busca de instrução
+  IF_ID if_id (IFFlush,clock,1,IF_pc_mais_4,IFinst,IDinst,ID_pc_mais_4); // criação do registrador interestágio de busca de instrução
 
 
 /**
@@ -120,10 +132,11 @@ module CPU (clock, reset);
   assign JumpTarget[31:28] = IF_pc_mais_4[31:28]; // calculando endereço do salto
   assign JumpTarget[27:2] = IDinst[25:0];
   assign JumpTarget[1:0] = 0;
-  assign IDcontrol = HazMuxCon ? ConOut : 0;
+   assign IDcontrol = 0;
+ // assign IDcontrol = HazMuxCon ? ConOut : 0;
   assign PCMuxOut = jump ? JumpTarget : IF_pc_mais_4;  // definindo valor do mux do pc
 
-  Hazard HU(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard
+  //Hazard HU(IDRegRs,IDRegRt,EXRegRt,EXM[1],PCWrite,IFIDWrite,HazMuxCon); // unidade de hazard
   UC uc (IDinst[31:26],ConOut,jump,bne,imm,andi,ori,addi); // unidade de controle
  Banco_Registradores registradores (clock,WBWB[0],datatowrite,WBRegRd,IDRegRs,IDRegRt,IDRegAout,IDRegBout);  // banco de registradores
 
@@ -137,10 +150,10 @@ module CPU (clock, reset);
  assign regtopass = EXEX[3] ? EXRegRd : EXRegRt;
  assign b_value = EXEX[2] ? EXimm_value : EXRegBout;
 
- mux_ MUX1(ForwardA,EXRegAout,datatowrite,MEMALUOut,0,ALUSrcA);
- MUX_2 MUX2(ForwardB,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
- Forwarding FU(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
-ForwardB);
+ mux_ MUX1(2'b0,EXRegAout,datatowrite,MEMALUOut,0,ALUSrcA);
+ MUX_2 MUX2(2'b0,b_value,datatowrite,MEMALUOut,0,ALUSrcB);
+ //Forwarding FU(MEMRegRd,WBRegRd,EXRegRs, EXRegRt, MEMWB[0], WBWB[0], ForwardA,
+//ForwardB);
  // ALU control
   assign aluop[0] =
  (~IDinst[31]&~IDinst[30]&~IDinst[29]&IDinst[28]&~IDinst[27]&~IDinst[26])|(imm);
@@ -151,14 +164,12 @@ ForwardB);
  ALU ULA(ALUCon,ALUSrcA,ALUSrcB,EXALUOut);
 
 
-  assign MEMWriteData = REG_MEMWriteData;
-  assign MEMReadData = REG_MEMReadData;
  EX_MEM EXMEMreg(clock,EXWB,EXM,EXALUOut,regtopass,EXRegBout,MEMM,MEMWB,MEMALUOut,MEMRegRd,MEMWriteData); // estágio de acesso a memória
 
 
 
 
-MEM_WB MEMWBreg(clock,MEMWB,MEMReadData,MEMALUOut,MEMRegRd,WBWB,WBReadData,WBALUOut,WBRegRd); // passando para o estágio final de escrita no registrador
+MEM_WB MEMWBreg(clock,MEMWB,REG_MEMReadData,MEMALUOut,MEMRegRd,WBWB,WBReadData,WBALUOut,WBRegRd); // passando para o estágio final de escrita no registrador
  /**
  * Escrita no registrador
  */
